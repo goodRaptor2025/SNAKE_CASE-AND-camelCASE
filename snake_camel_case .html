@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>snake_case & camelCase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #141414;
+      --card-snake: #0f1f0f;
+      --card-camel: #1f180a;
+      --accent-snake: #39ff6e;
+      --accent-camel: #ffb830;
+      --text: #f0f0f0;
+      --muted: #888;
+      --border: #2a2a2a;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Syne', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.5;
+    }
+
+    /* ── HERO ── */
+    header {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 80px 24px 60px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.1s;
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 7vw, 5rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -2px;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.25s;
+    }
+
+    h1 .snake { color: var(--accent-snake); }
+    h1 .sep   { color: var(--muted); margin: 0 12px; font-weight: 400; }
+    h1 .camel { color: var(--accent-camel); }
+
+    .subtitle {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.4s;
+    }
+
+    /* ── MAIN GRID ── */
+    main {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media (max-width: 700px) { main { grid-template-columns: 1fr; } }
+
+    .card {
+      padding: 52px 40px;
+      border-right: 1px solid var(--border);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards;
+    }
+    .card:last-child { border-right: none; }
+    .card.snake-card { background: var(--card-snake); animation-delay: 0.65s; }
+    .card.camel-card { background: var(--card-camel); animation-delay: 0.8s; }
+
+    .card-icon {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-family: var(--mono);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      letter-spacing: -0.5px;
+    }
+
+    .snake-card h2 { color: var(--accent-snake); }
+    .camel-card h2 { color: var(--accent-camel); }
+
+    .card p {
+      font-size: 0.97rem;
+      line-height: 1.75;
+      color: #c8c8c8;
+      margin-bottom: 20px;
+    }
+
+    /* code block */
+    .code-block {
+      background: #0a0a0a;
+      border-radius: 6px;
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.9;
+      border-left: 3px solid;
+      margin-top: 24px;
+    }
+    .snake-card .code-block { border-color: var(--accent-snake); }
+    .camel-card .code-block { border-color: var(--accent-camel); }
+
+    .code-block .kw  { color: #cc99ff; }
+    .code-block .fn  { color: var(--accent-camel); }
+    .code-block .fn2 { color: var(--accent-snake); }
+    .code-block .str { color: #ff8b80; }
+    .code-block .cm  { color: #555; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 24px 40px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <p class="header-tag">Convenciones de nomenclatura · Programación</p>
+    <h1>
+      <span class="snake">snake_case</span>
+      <span class="sep">&amp;</span>
+      <span class="camel">camelCase</span>
+    </h1>
+    <p class="subtitle">Cómo nombramos variables, funciones y más</p>
+  </header>
+
+  <!-- MAIN CARDS -->
+  <main>
+
+    <!-- SNAKE CASE -->
+    <div class="card snake-card">
+      <div class="card-icon">🐍</div>
+      <h2>snake_case</h2>
+      <p>
+        El <strong>snake_case</strong> es una convención de escritura donde todas las palabras se escriben en minúsculas y se separan mediante un guion bajo (<code>_</code>). Su nombre proviene de la analogía con una serpiente que se desplaza de forma horizontal y baja, similar a cómo luce el texto separado por guiones.
+      </p>
+      <p>
+        Es ampliamente usado en lenguajes como <strong>Python</strong>, <strong>Ruby</strong> y en bases de datos SQL. También es el estándar para nombres de archivos, variables de entorno y claves en APIs REST. Favorece la legibilidad al mantener una apariencia uniforme y plana.
+      </p>
+      <div class="code-block">
+        <span class="cm"># Python — snake_case</span><br>
+        <span class="kw">def</span> <span class="fn2">calcular_precio_total</span>(precio, impuesto):<br>
+        &nbsp;&nbsp;precio_con_impuesto = precio * (1 + impuesto)<br>
+        &nbsp;&nbsp;<span class="kw">return</span> precio_con_impuesto<br><br>
+        nombre_usuario = <span class="str">"ana_garcia"</span><br>
+        es_activo = <span class="kw">True</span>
+      </div>
+    </div>
+
+    <!-- CAMEL CASE -->
+    <div class="card camel-card">
+      <div class="card-icon">🐪</div>
+      <h2>camelCase</h2>
+      <p>
+        El <strong>camelCase</strong> es una convención en la que la primera palabra se escribe en minúsculas y cada palabra siguiente comienza con mayúscula, sin espacios ni separadores. Su nombre hace referencia a las jorobas de un camello, que representan las letras mayúsculas intercaladas en el texto.
+      </p>
+      <p>
+        Es el estándar en lenguajes como <strong>JavaScript</strong>, <strong>Java</strong>, <strong>TypeScript</strong> y <strong>Swift</strong>. Se utiliza principalmente para nombrar variables, funciones y métodos. Su forma compacta resulta natural en entornos donde la fluidez de lectura en código orientado a objetos es clave.
+      </p>
+      <div class="code-block">
+        <span class="cm">// JavaScript — camelCase</span><br>
+        <span class="kw">function</span> <span class="fn">calcularPrecioTotal</span>(precio, impuesto) {<br>
+        &nbsp;&nbsp;<span class="kw">const</span> precioConImpuesto = precio * (1 + impuesto);<br>
+        &nbsp;&nbsp;<span class="kw">return</span> precioConImpuesto;<br>
+        }<br><br>
+        <span class="kw">let</span> nombreUsuario = <span class="str">"anaGarcia"</span>;<br>
+        <span class="kw">let</span> esActivo = <span class="kw">true</span>;
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>snake_case &amp; camelCase · Convenciones de código</span>
+    <span>Programación · 2026</span>
+  </footer>
+
+</body>
+</html>
